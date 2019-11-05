@@ -4,12 +4,12 @@ cost_mat = np.array([
   [70, 30, 40, 60],
   [40, 8, 70, 20],
 ])
-supplies = [7, 9, 18]
-demands = [5, 8, 7, 14]
+supplies = np.array([7, 9, 18])
+demands = np.array([5, 8, 7, 14])
 cost = 0
 # Ans 779
 # Loop Until Either Row Penalty or Col Penalty is not possible
-while cost_mat.size != 2:
+while (len(cost_mat) != 1) and (len(cost_mat[0]) != 1):
   row_penalties = {}
   col_penalties = {}
   num = 0
@@ -35,12 +35,14 @@ while cost_mat.size != 2:
         cost += cost_mat[high, ind] * demands[ind]
         supplies[high] -= demands[ind]
         cost_mat = np.delete(cost_mat, ind, axis=1)
-        del demands[ind]
+        # del demands[ind]
+        demands = np.delete(demands, ind)
       else:
         cost += cost_mat[high, ind] * supplies[high]
         demands[ind] -= supplies[high]
         cost_mat = np.delete(cost_mat, high, axis=0)
-        del supplies[high] 
+        # del supplies[high] 
+        supplies = np.delete(supplies, high)
   else:
       high = max(col_penalties.items(), key = lambda x: x[1])[0]
       ind = np.argmin(cost_mat[:, high])
@@ -48,12 +50,14 @@ while cost_mat.size != 2:
         cost += cost_mat[ind, high] * demands[high]
         supplies[ind] -= demands[high]
         cost_mat = np.delete(cost_mat, high, axis=1)
-        del demands[high] 
+        # del demands[high] 
+        demands = np.delete(demands, high)
       else:
         cost += cost_mat[ind, high] * supplies[ind]
         demands[high] -= supplies[ind]
         cost_mat = np.delete(cost_mat, ind, axis=0)
-        del supplies[ind] 
+        # del supplies[ind] 
+        supplies = np.delete(supplies, ind)
 # Do this after no penalties is possible
 rows = np.ma.size(cost_mat, 0)
 cols = np.ma.size(cost_mat, 1)
@@ -63,11 +67,13 @@ if demands[col] < supplies[row]:
   cost += cost_mat[row, col] * demands[col]
   supplies[row] -= demands[col]
   cost_mat = np.delete(cost_mat, col, axis=1)
-  del demands[col]
+  # del demands[col]
+  demands = np.delete(demands, col)
 else:
   cost += cost_mat[row, col] * supplies[row]
   demands[col] -= supplies[row]
   cost_mat = np.delete(cost_mat, row, axis=0)
-  del supplies[row]
+  # del supplies[row]
+  supplies = np.delete(supplies, row)
 cost += cost_mat[0, 0] * demands[0]
 print (cost)
