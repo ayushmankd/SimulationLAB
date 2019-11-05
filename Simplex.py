@@ -1,60 +1,71 @@
-# Simplex Method to Solve Linear Programming Problem
+# Simplex Method to Solve Linear Programming Problem (Maximisation)
 import numpy as np
 
-def getDiff(Cj, Zj):
-  arr = [Cj[i] - Zj[i] for i in range(len(Cj))]
-  return arr
-def calculateZj(CBi, mat):
-  i = 0
-  j = 0
-  arr = [0 for i in mat[0]]
-  while j < len(arr):
-    while i < len(CBi):
-      arr[j] += CBi[i] * mat[i, j]
-      i += 1
+CBi = np.array([0.0, 0.0])
+Cj = np.array([12.0, 20.0, 0.0, 0.0])
+Sol = np.array([100.0, 100.0])
+Ratio = np.array([0.0, 0.0])
+Zj = np.array([0.0, 0.0, 0.0, 0.0])
+DiffCjZj = np.array([0.0, 0.0, 0.0, 0.0])
+mat = np.array([
+  [6.0, 8.0, 1.0, 0.0],
+  [7.0, 12.0, 0.0, 1.0]
+])
+i = 0
+j = 0
+while i < len(Cj):
+  val = 0
+  while j < len(CBi):
+    val += CBi[j] * mat[j, i]
     j += 1
-  return arr
-def updateRatios(mat, keyRowInd):
-  arr = [0 for i in mat]
-  for i in range(len(mat)):
-    arr = mat[i, -1] / mat[i, keyRowInd]
-  return arr
-def updateMat(mat, keyElement, keyColInd, keyRowInd):
+  j = 0
+  Zj[i] = val
+  i += 1
+i = 0
+while i < len(Cj):
+  DiffCjZj[i] = Cj[i] - Zj[i]
+  i += 1
+while len(DiffCjZj[DiffCjZj > 0]) != 0:
+  keyColInd = np.argmax(DiffCjZj)
+  j = 0
+  while j < len(Ratio):
+    Ratio[j] = Sol[j] / mat[j, keyColInd]
+    j += 1
+  keyRowInd = np.argmin(Ratio)
+  keyElement = mat[keyRowInd, keyColInd]
+  CBi[keyRowInd] = Cj[keyColInd]
   i = 0
   j = 0
-  while i < len(mat):
+  while i < len(CBi):
     if i == keyRowInd:
-      while j < len(mat[0]):
-        mat[i, j] /= keyElement
-        j += 1
+      mat[i, j] /= keyElement
+      Sol[i] /= keyElement
+      i += 1
     else:
-      while j < len(mat[0]):
+      while j < len(Cj):
         mat[i, j] -= (mat[i, keyColInd] * mat[keyRowInd, j]) / keyElement
         j += 1
+      j = 0
+      Sol[i] -= (mat[i, keyColInd] * Sol[keyRowInd]) / keyElement
+      i += 1
+  i = 0
+  j = 0
+  while i < len(Cj):
+    val = 0
+    while j < len(CBi):
+      val += CBi[j] * mat[j, i]
+      j += 1
+    Zj[i] = val
+    j = 0
     i += 1
-Cj = np.array([12.0, 16.0, 0.0, 0.0])
-Zj = np.array([0.0, 0.0, 0.0, 0.0])
-ratios = np.array([0.0, 0.0])
-mat = np.array([
-  [10.0, 20.0, 1.0, 0.0, 120.0],
-  [8.0, 8.0, 0.0, 1.0, 80.0]
-])
-CBi = np.array([0.0, 0.0])
-diff = np.array([0.0, 0.0, 0.0, 0.0])
-Zj = np.asarray(calculateZj(CBi, mat))
-diff = np.asarray(getDiff(Cj, Zj))
-while len(diff[diff > 0]) > 0:
-  keyColInd = np.argmax(diff)
-  ratios = np.asarray(updateRatios(mat, keyColInd))
-  keyRowInd = np.argmin(ratios)
-  keyElement = mat[keyRowInd, keyColInd]
-  updateMat(mat, keyElement, keyColInd, keyRowInd)
-  CBi[keyRowInd] = Cj[keyColInd]
-  Zj = np.asarray(calculateZj(CBi, mat))
-  diff = np.asarray(getDiff(Cj, Zj))
-  print (mat)
-  # break
-print ("Solution: ", Zj[-1])
+  i = 0
+  # print (Zj)
+  while i < len(Cj):
+    DiffCjZj[i] = Cj[i] - Zj[i]
+    i += 1
+print ((CBi[0] * Sol[0]) + (CBi[1] * Sol[1]))
+  
+  
 
 
   
